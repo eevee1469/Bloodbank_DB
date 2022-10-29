@@ -1,140 +1,145 @@
--- MySQL Workbench Forward Engineering
-
-SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
-SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
-
--- -----------------------------------------------------
--- Schema bb_db
--- -----------------------------------------------------
-
--- -----------------------------------------------------
--- Schema bb_db
--- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `bb_db` DEFAULT CHARACTER SET utf8 ;
-USE `bb_db` ;
-
--- -----------------------------------------------------
--- Table `bb_db`.`banco_de_sangre`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `bb_db`.`banco_de_sangre` (
-  `bankname_id` VARCHAR(16) NOT NULL,
-  `Adress_id` VARCHAR(80) NOT NULL,
-  `Unidad_id` BIGINT NOT NULL,
-  `Solicitud_id` VARCHAR(32) NOT NULL,
-  PRIMARY KEY (`bankname_id`));
+create SCHEMA bb_db_bonzano;
+USE bb_db_bonzano;
+ 
+-- TABLE CREATE banco_sangre
+	
+   CREATE TABLE banco_de_sangre (
+		bankname_id VARCHAR(16) ,
+        bank_adress VARCHAR (80) NOT NULL,
+        bankunidad_id INT NOT NULL PRIMARY KEY NOT NULL
+        
+    );
 
 
--- -----------------------------------------------------
--- Table `bb_db`.`unidad`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `bb_db`.`unidad` (
-  `id_donante` VARCHAR(16) NOT NULL,
-  `tipo_sanguineo` TINYTEXT NOT NULL,
-  `rh_id` INT NOT NULL,
-  `unidad_id` BIGINT NOT NULL,
-  `Factor` INT NOT NULL,
-  `tipo_unid` TINYTEXT NOT NULL,
-  PRIMARY KEY (`unidad_id`));
+	-- TABLA UNIDAD
+	CREATE TABLE unidad (
+        unidad_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		rh 	TINYTEXT  NOT NULL,
+        grupo_sang 	TINYTEXT NOT NULL
+
+        );
+
+-- TABLA DONANTE 
+		CREATE TABLE donante (
+		id_donante INT NOT NULL AUTO_INCREMENT,
+		fullname TINYTEXT NOT NULL,
+		nacimiento DATE NOT NULL ,
+		peso INT NOT NULL,
+		email VARCHAR(45),
+		FOREIGN KEY (id_donante) REFERENCES unidad (unidad_id)
+    
+		);
+        
+-- CHILD DE UNIDAD 
+	
+    CREATE TABLE tipo_unid(
+		tip_unid_id INT  NOT NULL, 
+        plaquetas TINYTEXT ,
+        sangre TINYTEXT,
+        cerologia TINYTEXT NOT NULL,
+        FOREIGN KEY (tip_unid_id) REFERENCES unidad (unidad_id)
+        
+        );
+        
+       
+-- TABLA HOSPITAL
+	 
+
+         CREATE TABLE hospital (
+			nombre_hp VARCHAR (50) NOT NULL, 
+            adress_hp VARCHAR (50) NOT NULL,
+			pte_solcitiud INT NOT NULL,
+				pacientehp_legajo INT NOT NULL PRIMARY KEY
+            );
+            
+            
+-- PACIENTE TABLA
+
+	CREATE TABLE pacientehp (
+		legajo INT AUTO_INCREMENT,
+        dni_pte TINYINT,
+        nombre_pt TINYTEXT NOT NULL,
+        nac_pte DATE NOT NULL,
+       
+       FOREIGN KEY (legajo) REFERENCES  hospital (pacientehp_legajo)
+	
+        );
+        
+                
+			-- tabla solicitud hosp banco
+		
+        CREATE TABLE hp_banco_solicitud(
+        solicitud_hp INT NOT NULL,
+        solicitud_bd INT NOT NULL,
+        
+									-- Relacion bnaco de sangre hop solicitud 
+        
+			 FOREIGN KEY (solicitud_hp) REFERENCES  hospital (pacientehp_legajo),
+             FOREIGN KEY (solicitud_bd) REFERENCES  banco_de_sangre (bankunidad_id)
+
+  );
+  
+  
+CREATE TABLE deposito_banco(
+        unidad_storage INT NOT NULL,
+        unidad_bank INT NOT NULL,
+        
+									-- Relacion UNIDAD-BANCO DE SANGRE 
+        
+			 FOREIGN KEY (unidad_storage) REFERENCES  banco_de_sangre (bankunidad_id),
+             FOREIGN KEY (unidad_bank) REFERENCES  unidad (unidad_id)
+             
+
+             );
+             
+             
+             
+             -- TABLA TRANSPORTE 
+	CREATE TABLE transporte_unid (
+		transporte TINYINT NOT NULL PRIMARY KEY,
+        solicitud_transporte DATE NOT NULL,
+        unidad_transporte  INT NOT NULL
+        
+	);
+    
+		-- TABLA TIPO DE TRANSPORTE
+	CREATE TABLE vehiculo (
+     patente_vehiculo TINYINT NOT NULL,
+     marca_transporte TINYTEXT NOT NULL,
+     dni_chofer TINYINT NOT NULL,
+	
+    FOREIGN KEY (patente_vehiculo) REFERENCES transporte_unid (transporte) 
+    
+    );
+    
+     -- TABLA CHOFER UNID
+     
+     CREATE TABLE chofer_id (
+     legajo_chofer TINYINT NOT NULL AUTO_INCREMENT,
+     cuit_chofer INT NOT NULL,
+     nac_chofer DATE NOT NULL,
+     contacto_chofer varchar (50),
+     carnet_conduc INT NOT NULL,
+     
+     FOREIGN KEY (legajo_chofer) REFERENCES transporte_unid (transporte) 
 
 
--- -----------------------------------------------------
--- Table `bb_db`.`donante`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `bb_db`.`donante` (
-  `id_donante` VARCHAR(25) NOT NULL,
-  `email` VARCHAR(25) NOT NULL,
-  `id_nombre` TINYTEXT NOT NULL,
-  `id_factorRH` TINYTEXT NOT NULL,
-  `Nacimiento` DATETIME NOT NULL,
-  `Unidad_id` BIGINT NOT NULL,
-  `Peso` INT NOT NULL,
-  `unidad_donor_id` BIGINT NOT NULL,
-  PRIMARY KEY (`id_donante`));
+     
+     );
 
+    -- Relacion TRANSPORTE UNIDAD 
+		
+        CREATE TABLE solicit_aprob(
+        transporte_a_hp INT NOT NULL,
+        unidad_a_transportar TINYINT NOT NULL,
+        
+									-- TRANSPORTE A HOSPITAL
+        
+			 FOREIGN KEY (transporte_a_hp) REFERENCES  HOSPITAL (pacientehp_legajo),
+             FOREIGN KEY (unidad_a_transportar) REFERENCES  transporte_unid (transporte)
+             
+	);
 
--- -----------------------------------------------------
--- Table `bb_db`.`recoleccion`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `bb_db`.`recoleccion` (
-  `id_recoleccion` INT NOT NULL,
-  `id_estado` DECIMAL NOT NULL,
-  `unidad_id` BIGINT NOT NULL,
-  `fecha_recolec` DATE NOT NULL,
-  PRIMARY KEY (`id_recoleccion`));
-
-
--- -----------------------------------------------------
--- Table `bb_db`.`hospital`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `bb_db`.`hospital` (
-  `nombrehp_id` VARCHAR(16) NOT NULL,
-  `adress_id` VARCHAR(80) NOT NULL,
-  `Solicitud_hpid` VARCHAR(32) NOT NULL,
-  `Fechasolicitud` DATE NOT NULL,
-  `paciente_paciente_id` VARCHAR(16) NOT NULL,
-  PRIMARY KEY (`nombrehp_id`, `paciente_paciente_id`));
-
-
--- -----------------------------------------------------
--- Table `bb_db`.`solicitud_unidad`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `bb_db`.`solicitud_unidad` (
-  `Solicitud_id` VARCHAR(32) NOT NULL,
-  `unidad_unidad_id` BIGINT NOT NULL,
-  `Unidad_id_donante` VARCHAR(16) NOT NULL,
-  `SolicDate` DATETIME NOT NULL,
-  PRIMARY KEY (`Solicitud_id`, `unidad_unidad_id`));
-
-
--- -----------------------------------------------------
--- Table `bb_db`.`paciente`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `bb_db`.`paciente` (
-  `paciente_id` VARCHAR(16) NOT NULL,
-  `email_pte` VARCHAR(40) NOT NULL,
-  `dni_pte` INT NOT NULL,
-  `solicitud_type` VARCHAR(35) NOT NULL,
-  PRIMARY KEY (`paciente_id`));
-
-
--- -----------------------------------------------------
--- Table `bb_db`.`pte_solicitud`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `bb_db`.`pte_solicitud` (
-  `pte_id_hosp` VARCHAR(16) NOT NULL,
-  PRIMARY KEY (`pte_id_hosp`));
-
-
--- -----------------------------------------------------
--- Table `bb_db`.`solicitud_unidad_has_banco_de_sangre`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `bb_db`.`solicitud_unidad_has_banco_de_sangre` (
-  `solicitud_unidad_Solicitud_id` VARCHAR(32) NOT NULL,
-  `banco_de_sangre_bankname_id` VARCHAR(16) NOT NULL,
-  PRIMARY KEY (`solicitud_unidad_Solicitud_id`, `banco_de_sangre_bankname_id`));
-
-
--- -----------------------------------------------------
--- Table `bb_db`.`hospital_has_pte_solicitud`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `bb_db`.`hospital_has_pte_solicitud` (
-  `hospital_nombrehp_id` VARCHAR(16) NOT NULL,
-  `hospital_paciente_paciente_id` VARCHAR(16) NOT NULL,
-  `pte_solicitud_pte_id_hosp` VARCHAR(16) NOT NULL,
-  PRIMARY KEY (`hospital_nombrehp_id`, `hospital_paciente_paciente_id`, `pte_solicitud_pte_id_hosp`));
-
-
--- -----------------------------------------------------
--- Table `bb_db`.`hospital_has_banco_de_sangre`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `bb_db`.`hospital_has_banco_de_sangre` (
-  `hospital_nombrehp_id` VARCHAR(16) NOT NULL,
-  `hospital_paciente_paciente_id` VARCHAR(16) NOT NULL,
-  `banco_de_sangre_bankname_id` VARCHAR(16) NOT NULL,
-  PRIMARY KEY (`hospital_nombrehp_id`, `hospital_paciente_paciente_id`, `banco_de_sangre_bankname_id`));
-
-
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+             
+	
+  
