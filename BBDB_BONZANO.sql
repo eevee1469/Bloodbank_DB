@@ -1,19 +1,20 @@
-create SCHEMA bb_db_bonzano;
+DROP SCHEMA bb_db_bonzano;
+CREATE SCHEMA bb_db_bonzano;
 USE bb_db_bonzano;
  
 -- TABLE CREATE banco_sangre
 	
    CREATE TABLE banco_de_sangre (
-		bankname_id VARCHAR(16) ,
+		bankname_id VARCHAR(50) ,
         bank_adress VARCHAR (80) NOT NULL,
-        bankunidad_id INT NOT NULL PRIMARY KEY NOT NULL
+        bankunidad_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY NOT NULL 
         
     );
 
 
 	-- TABLA UNIDAD
 	CREATE TABLE unidad (
-        unidad_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        unidad_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		rh 	TINYTEXT  NOT NULL,
         grupo_sang 	TINYTEXT NOT NULL
 
@@ -21,24 +22,26 @@ USE bb_db_bonzano;
 
 -- TABLA DONANTE 
 		CREATE TABLE donante (
-		id_donante INT NOT NULL AUTO_INCREMENT,
+		id_donante BIGINT NOT NULL AUTO_INCREMENT,
 		fullname TINYTEXT NOT NULL,
 		nacimiento DATE NOT NULL ,
 		peso INT NOT NULL,
 		email VARCHAR(45),
-		FOREIGN KEY (id_donante) REFERENCES unidad (unidad_id)
+        fechadonac DATE NOT NULL, 
+		
+        FOREIGN KEY (id_donante) REFERENCES unidad (unidad_id)
     
 		);
         
 -- CHILD DE UNIDAD 
 	
-    CREATE TABLE tipo_unid(
-		tip_unid_id INT  NOT NULL, 
+    CREATE TABLE tipo_unidad(
+		tip_unid_id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        tip_unid_fk BIGINT NULL, 
         plaquetas TINYTEXT ,
         sangre TINYTEXT,
         cerologia TINYTEXT NOT NULL,
-        FOREIGN KEY (tip_unid_id) REFERENCES unidad (unidad_id)
-        
+        FOREIGN KEY (tip_unid_fk) REFERENCES unidad (unidad_id)
         );
         
        
@@ -46,22 +49,24 @@ USE bb_db_bonzano;
 	 
 
          CREATE TABLE hospital (
-			nombre_hp VARCHAR (50) NOT NULL, 
+			pacientehp_legajo BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            nombre_hp VARCHAR (50) NOT NULL, 
             adress_hp VARCHAR (50) NOT NULL,
-			pte_solcitiud INT NOT NULL,
-				pacientehp_legajo INT NOT NULL PRIMARY KEY
-            );
+			pte_solicitiud INT NULL
+			
+);
             
             
 -- PACIENTE TABLA
 
 	CREATE TABLE pacientehp (
-		legajo INT AUTO_INCREMENT,
-        dni_pte TINYINT,
+		legajo BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL ,
+        dni_pte VARCHAR(255),
         nombre_pt TINYTEXT NOT NULL,
         nac_pte DATE NOT NULL,
+        legajo_hp BIGINT NULL,
        
-       FOREIGN KEY (legajo) REFERENCES  hospital (pacientehp_legajo)
+       FOREIGN KEY (legajo_hp) REFERENCES  hospital (pacientehp_legajo)
 	
         );
         
@@ -69,8 +74,9 @@ USE bb_db_bonzano;
 			-- tabla solicitud hosp banco
 		
         CREATE TABLE hp_banco_solicitud(
-        solicitud_hp INT NOT NULL,
-        solicitud_bd INT NOT NULL,
+        soplicitudbbpk INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+        solicitud_hp BIGINT NOT NULL,
+        solicitud_bd BIGINT NOT NULL,
         
 									-- Relacion bnaco de sangre hop solicitud 
         
@@ -81,8 +87,9 @@ USE bb_db_bonzano;
   
   
 CREATE TABLE deposito_banco(
-        unidad_storage INT NOT NULL,
-        unidad_bank INT NOT NULL,
+        doposito_bankpk BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT ,
+        unidad_storage BIGINT NOT NULL,
+        unidad_bank BIGINT NOT NULL,
         
 									-- Relacion UNIDAD-BANCO DE SANGRE 
         
@@ -96,7 +103,7 @@ CREATE TABLE deposito_banco(
              
              -- TABLA TRANSPORTE 
 	CREATE TABLE transporte_unid (
-		transporte TINYINT NOT NULL PRIMARY KEY,
+		transporte BIGINT NOT NULL PRIMARY KEY,
         solicitud_transporte DATE NOT NULL,
         unidad_transporte  INT NOT NULL
         
@@ -104,7 +111,7 @@ CREATE TABLE deposito_banco(
     
 		-- TABLA TIPO DE TRANSPORTE
 	CREATE TABLE vehiculo (
-     patente_vehiculo TINYINT NOT NULL,
+     patente_vehiculo BIGINT NOT NULL,
      marca_transporte TINYTEXT NOT NULL,
      dni_chofer TINYINT NOT NULL,
 	
@@ -115,7 +122,7 @@ CREATE TABLE deposito_banco(
      -- TABLA CHOFER UNID
      
      CREATE TABLE chofer_id (
-     legajo_chofer TINYINT NOT NULL AUTO_INCREMENT,
+     legajo_chofer BIGINT NOT NULL AUTO_INCREMENT,
      cuit_chofer INT NOT NULL,
      nac_chofer DATE NOT NULL,
      contacto_chofer varchar (50),
@@ -130,8 +137,9 @@ CREATE TABLE deposito_banco(
     -- Relacion TRANSPORTE UNIDAD 
 		
         CREATE TABLE solicit_aprob(
-        transporte_a_hp INT NOT NULL,
-        unidad_a_transportar TINYINT NOT NULL,
+        solict_pk INT PRIMARY KEY NOT NULL, 
+        transporte_a_hp BIGINT NOT NULL,
+        unidad_a_transportar BIGINT NOT NULL,
         
 									-- TRANSPORTE A HOSPITAL
         
@@ -139,7 +147,3 @@ CREATE TABLE deposito_banco(
              FOREIGN KEY (unidad_a_transportar) REFERENCES  transporte_unid (transporte)
              
 	);
-
-             
-	
-  
